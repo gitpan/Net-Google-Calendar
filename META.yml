@@ -1,6 +1,6 @@
 ---
 name: Net-Google-Calendar
-version: 0.97
+version: 0.98
 author:
   - 'Simon Wistow <simon@thegestalt.org>'
 abstract: programmatic access to Google's Calendar API
@@ -14,11 +14,13 @@ requires:
   Test::More: 0
   URI: 0
   URI::Escape: 0
-  XML::Atom: 0.23
+  XML::Atom: 0.37
+configure_requires:
+  Module::Build: 0.35
 provides:
   Net::Google::Calendar:
     file: lib/Net/Google/Calendar.pm
-    version: 0.97
+    version: 0.98
   Net::Google::Calendar::Base:
     file: lib/Net/Google/Calendar/Base.pm
   Net::Google::Calendar::Calendar:
@@ -33,7 +35,7 @@ provides:
     file: lib/Net/Google/Calendar/Person.pm
   Net::Google::Calendar::WebContent:
     file: lib/Net/Google/Calendar/WebContent.pm
-generated_by: Module::Build version 0.2808
+generated_by: Module::Build version 0.35
 meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4

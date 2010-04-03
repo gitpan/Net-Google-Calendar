@@ -143,6 +143,34 @@ sub status {
 }
 
 
+
+=head2 is_allday                                                                                                                                          
+                                                                                                                                                           
+Get the allday flag.                                                                                                                                      
+                                                                                                                                                           
+Returns 1 of event is an All Day event, 0 if not, undef if it can't be                                                                                    
+determined.                                                                                                                                               
+                                                                                                                                                           
+=cut                                                                                                                                                      
+                                                                                                                                                           
+sub is_allday {                                                                                                                                           
+     my $self = shift;                                                                                                                                     
+                                                                                                                                                           
+     my $start = $self->_attribute_get($self->{_gd_ns}, 'when', 'startTime');                                                                              
+     my $end   = $self->_attribute_get($self->{_gd_ns}, 'when', 'endTime');                                                                                
+                                                                                                                                                           
+     my $startok = undef;                                                                                                                                  
+     my $endok = undef;                                                                                                                                    
+                                                                                                                                                           
+     if ($start =~ /^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/) { $startok = 1; }                                                                                   
+     if ($end   =~ /^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/) { $endok = 1; }                                                                                     
+                                                                                                                                                           
+     if ($startok && $endok)   { return 1; }                                                                                                                
+     if (!$startok && !$endok) { return 0; }                                                                                                              
+     return undef;                                                                                                                                        
+}                                                                                                                                                         
+         
+
 =head2 extended_property [property]
 
 Get or set an extended property
@@ -169,6 +197,21 @@ sub _gd_elem_generic{
     my $multi = shift;
     my $elem  = shift;
 
+    if ($elem eq "extendedProperty") {
+      	if (@_) {
+           	my $name = shift;
+           	my $val  = shift;
+           	my $op   = $multi ? 'add' : 'set';
+           	$self->$op($self->{_gd_ns}, "${elem}" => "", { name => $name, value => $val } );
+           	return $val;
+       	}
+       	my $ret = {};
+       	for my $item ($self->_my_getlist($self->{_gd_ns} ,$elem)) {
+          	$ret->{$item->getAttribute('name')} = $item->getAttribute('value');
+       	}
+    	return $ret;
+    }
+
     if (@_) {
         my $val = lc(shift);
         my $op  = ($multi)? 'add' : 'set';
@@ -184,7 +227,7 @@ sub _attribute_get {
     my ($self, $ns, $what, $key) = @_;
     my $elem = $self->_my_get($self->{_gd_ns}, $what, $key);
     
-    if ($elem->hasAttribute($key)) {
+    if (defined($elem) && $elem->hasAttribute($key)) {
         return $elem->getAttribute($key);
     } else {
         return $elem;
@@ -448,7 +491,6 @@ sub recurrence {
     return undef unless defined $string;
     $string =~ s!\n+$!!g;
     $string = "BEGIN:VEVENT\n${string}\nEND:VEVENT";
-    print "Recurrence is $string\n";
     my $vfile = Text::vFile::asData->new->parse_lines( split(/\n/, $string) );
     my $event = Data::ICal::Entry::Event->new();
     #return $event;

@@ -1,3 +1,8 @@
+v0.98
+   Fix minimum XML::Atom version (Tim Irvin)
+   Deal with ExtendedProperty properly (Tim Irvin)
+   Add is_allday (Tim Irvin)
+
 v0.97
    Deal with update to Net::Google::AuthSub
    Provide access to AuthSub object
