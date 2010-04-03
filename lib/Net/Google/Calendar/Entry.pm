@@ -279,7 +279,7 @@ End must be more than start.
 
 You may optionally pass a paramter in designating if this is an all day event or not.
 
-Returns two DateTime objects depicting the start and end. 
+Returns two DateTime objects depicting the start and end and a flag noting whether it's an all day event. 
 
 
 =cut
@@ -316,7 +316,7 @@ sub when {
     if (defined $end) {
         push @rets, $end;
     } 
-    return map { iso2dt($_) } @rets;
+    return (map { iso2dt($_) } @rets), $self->is_allday;
 
 }
 

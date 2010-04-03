@@ -19,7 +19,7 @@ use Carp qw(confess);
 
 use vars qw($VERSION $APP_NAME);
 
-$VERSION  = "0.98";
+$VERSION  = "0.99";
 $APP_NAME = __PACKAGE__."-${VERSION}"; 
 
 =head1 NAME
