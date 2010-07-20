@@ -5,7 +5,7 @@ use Data::Dumper;
 use DateTime;
 use XML::Atom;
 use XML::Atom::Entry;
-use XML::Atom::Util qw( set_ns first nodelist childlist iso2dt);
+use XML::Atom::Util qw( set_ns first nodelist childlist iso2dt create_element);
 use base qw(XML::Atom::Entry Net::Google::Calendar::Base);
 use Net::Google::Calendar::Person;
 use Net::Google::Calendar::Comments;
@@ -320,6 +320,39 @@ sub when {
 
 }
 
+=head2 reminder <method> <type> <when>
+
+Sets a reminder on this entry.
+
+C<method> must be one of:
+
+    alert email sms
+
+C<type> must be one of 
+
+    days hours minutes absoluteTime
+
+If the type is C<absoluteTime> then C<when> should be either a iso formatted date string or a DateTime object.
+
+=cut
+
+sub reminder {
+    my $self = shift;
+    my ($method, $type, $time) = @_;
+    return undef unless ($method =~ /alert|email|sms/);
+    return undef unless ($type =~ /days|hours|minutes|absoluteTime/);
+    $time = $time->strftime("%FT%TZ") if ref($time) && $time->isa('DateTime');
+    for my $item ($self->_my_getlist($self->{_gd_ns} ,'when')) {
+       my $elem = create_element($self->{_gd_ns}, 'reminder');
+       $elem->setAttribute('method', $method);
+       $elem->setAttribute($type, $time);
+       $item->appendChild($elem);
+    }
+    return 1;
+}
+
+
+
 
 
 =head2 who [Net::Google::Calendar::Person[s]]
@@ -420,6 +453,15 @@ sub self_url {
 }
 
 
+=head2 html_url
+
+Return the 'alternate' browser-friendly url of this event.
+
+=cut
+
+sub html_url {
+    return $_[0]->_generic_url('alternate');
+}
 
 
 

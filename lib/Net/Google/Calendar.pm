@@ -19,8 +19,8 @@ use Carp qw(confess);
 
 use vars qw($VERSION $APP_NAME);
 
-$VERSION  = "0.99";
-$APP_NAME = __PACKAGE__."-${VERSION}"; 
+$VERSION  = "1.0";
+$APP_NAME = $Net::Google::OAuth::APP_NAME = __PACKAGE__."-${VERSION}"; 
 
 =head1 NAME
 
@@ -43,6 +43,11 @@ or
     # this will also get you a read-write feed
     my $cal = Net::Google::Calendar->new;
     $cal->auth($username, $auth_token);
+
+or
+    # this will again get you a read-write feed
+    my $cal = Net::Google::Calendar->new;
+    $cal->oauth(Net::Google::OAuth);
 
 or you can pass in a url to specify a particular calendar
 
@@ -186,7 +191,7 @@ add_entry and update_entry will not modify the entry in place.
 
 sub new {
     my ($class, %opts) = @_;
-    $opts{_ua}   = LWP::UserAgent->new;
+    $opts{_ua}   = LWP::UserAgent->new( max_redirect => 0 );
     $opts{_ua}->env_proxy;
     $opts{_auth} = Net::Google::AuthSub->new( service => 'cl' );
     $opts{_cookie_jar} = HTTP::Cookies->new;
@@ -268,9 +273,20 @@ sub auth {
     return 1;
 }
 
+=head2 oauth Net::Google::OAuth
+
+Use OAuth for calendar access
+
+=cut
+
+sub oauth {
+    my $self = shift;
+    $self->{_auth} = shift;
+}
+
 sub _generate_url {
     my $self= shift;
-    $self->{url} ||=  "http://google.com/calendar/feeds/$self->{user}/private/full";
+    $self->{url} ||=  $self->_get_protocol()."://google.com/calendar/feeds/$self->{user}/private/full";
     $self->{url}   =~ s!/private-[^/]+!/private!;
     $self->_find_calendar_id;
 
@@ -290,6 +306,25 @@ sub auth_object {
 sub _find_calendar_id {
     my $self = shift;
     ($self->{calendar_id}) = ($self->{url} =~ m!/feeds/([^/]+)/!);
+}
+
+=head2 ssl bool
+
+Use ssl or not.  Auth tokens (AuthSub and OAuth) have a scope that includes http:// or https://.  Make sure you use ssl(1) if your scope is https://www.google.com/calendar/feeds/.
+
+=cut
+
+sub ssl {
+    my $self = shift;
+    $self->{_use_ssl} = shift;
+}
+
+sub _get_protocol {
+    my $self = shift;
+    if ($self->{_use_ssl}) {
+        return 'https';
+    }
+    return 'http';
 }
 
 =head2 get_events [ %opts ]
@@ -494,7 +529,7 @@ sub add_entry {
     my ($self, $entry) = @_;
 
     # TODO for neatness' sake we could make calendar_id = 'default' when calendar_id = user
-    my $url =  "http://www.google.com/calendar/feeds/$self->{calendar_id}/private/full"; 
+    my $url =  $self->_get_protocol()."://www.google.com/calendar/feeds/$self->{calendar_id}/private/full"; 
     push @_, ($url, 'POST');
     goto $self->can('_do');
 }
@@ -547,7 +582,7 @@ sub get_calendars {
     my $self  = shift;
     my $owned = shift || 0;
     my $which = ($owned)? "owncalendars" : "allcalendars";
-    my $url   = "http://www.google.com/calendar/feeds/default/$which/full";
+    my $url   = $self->_get_protocol()."://www.google.com/calendar/feeds/default/$which/full";
     return $self->_get("$url", "Net::Google::Calendar::Calendar");
 }
 
@@ -572,8 +607,15 @@ sub get_feed {
     if (ref($feed)){
         return $feed if $feed->isa('XML::Atom::Feed');
         if ($feed->isa('URI')) {
-            my %params = ($self->{_auth}->auth_params, %opts);
+            my %params = ($self->{_auth}->auth_params('GET', $feed), %opts);
             my $r   = $self->{_ua}->get("$feed", %params);
+
+            if ($r->code == 302) {
+                my $location = $r->header('location');
+                %params = ($self->{_auth}->auth_params('GET', $location), %opts);
+                $r   = $self->{_ua}->get($location, %params);
+            }
+
             die $r->status_line unless $r->is_success;
             $feed = $r->content;
         }
@@ -588,9 +630,9 @@ Take an C<XML::Atom::Feed> object with a C<http://schemas.google.com/g/2005#post
 =cut
 
 sub update_feed {
-	my ($self, $feed) = @_;
- 	#my $uri = Net::Google::Calendar::Base::_generic_url($feed, 'http://schemas.google.com/g/2005#post') || die("Couldn't get url");
- 	my $uri = Net::Google::Calendar::Base::_generic_url($feed, 'edit') || die("Couldn't get url");
+    my ($self, $feed) = @_;
+     #my $uri = Net::Google::Calendar::Base::_generic_url($feed, 'http://schemas.google.com/g/2005#post') || die("Couldn't get url");
+     my $uri = Net::Google::Calendar::Base::_generic_url($feed, 'edit') || die("Couldn't get url");
     push @_, ($uri, 'POST');
     goto $self->can('_do');
 }
@@ -628,7 +670,7 @@ sub set_calendar {
     my $cal  = shift;
 
     ($self->{calendar_id}) = (uri_unescape($cal->id) =~ m!([^/]+)$!);
-    $self->{url} =  "http://www.google.com/calendar/feeds/$self->{calendar_id}/private/full";
+    $self->{url} =  $self->_get_protocol()."://www.google.com/calendar/feeds/$self->{calendar_id}/private/full";
 }
 
 
@@ -646,7 +688,7 @@ Returns undef on failure.
 
 sub add_calendar {
     my ($self, $entry) = @_;
-    my $url = "http://www.google.com/calendar/feeds/$self->{calendar_id}/owncalendars/full"; 
+    my $url = $self->_get_protocol()."://www.google.com/calendar/feeds/$self->{calendar_id}/owncalendars/full"; 
     push @_, ($url, 'POST');
     goto $self->can('_do');
 }
@@ -790,5 +832,4 @@ Distributed under the same terms as Perl itself.
 http://code.google.com/apis/gdata/calendar.html
 
 =cut
-
 1;

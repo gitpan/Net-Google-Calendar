@@ -1,3 +1,9 @@
+v1.0
+  Add OAuth support (Patrick Michaud)
+  Add convenience methods to Calendar object (Patrick Michaud)
+  Add reminder support to Net::Google::Calendar::Entry (Stanislav Anton) (https://rt.cpan.org/Public/Bug/Display.html?id=40811)
+  Add html_url method to ::Entry (Jerrad Pierce) (https://rt.cpan.org/Ticket/Display.html?id=54354)
+
 v 0.99
    Make when return an all day flag (Tim Irvin)
 

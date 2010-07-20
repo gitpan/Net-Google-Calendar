@@ -61,4 +61,117 @@ sub edit_url {
     $url      =~ s!/allcalendars/full!/owncalendars/full! if $force;
     return $url;
 }
+
+=head2 color
+
+The color assigned to the calendar.
+
+=cut
+
+sub color {
+    my $self = shift;
+    if (@_) {}
+    if (my $el = $self->elem->getChildrenByTagName('gCal:color')->[0]) {
+        return $el->getAttribute('value');
+    }
+    return;
+}
+
+=head2 override_name
+
+Returns the override name of the calendar.  Not always set.
+
+=cut
+
+sub override_name {
+    my $self = shift;
+    if (@_) {}
+    if (my $el = $self->elem->getChildrenByTagName('gCal:overridename')->[0]) {
+        return $el->getAttribute('value');
+    }
+    return;
+}
+
+=head2 access_level
+
+Returns the access level of the calendar.
+
+=cut
+
+sub access_level {
+    my $self = shift;
+    if (@_) {}
+    if (my $el = $self->elem->getChildrenByTagName('gCal:accesslevel')->[0]) {
+        return $el->getAttribute('value');
+    }
+    return;
+}
+
+=head2 hidden
+
+Returns true if the calendar is hidden, false otherwise
+
+=cut
+
+sub hidden {
+    my $self = shift;
+    if (@_) {}
+    if (my $el = $self->elem->getChildrenByTagName('gCal:hidden')->[0]) {
+        if ($el->getAttribute('value') eq 'true') {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+=head2 selected
+
+Returns true if the calendar is selected, false otherwise.
+
+=cut
+
+sub selected {
+    my $self = shift;
+    if (@_) {}
+    if (my $el = $self->elem->getChildrenByTagName('gCal:selected')->[0]) {
+        if ($el->getAttribute('value') eq 'true') {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+=head2 time_zone
+
+Returns the time zone of the calendar.
+
+=cut
+
+sub time_zone {
+    my $self = shift;
+    if (@_) {}
+    if (my $el = $self->elem->getChildrenByTagName('gCal:timezone')->[0]) {
+        return $el->getAttribute('value');
+    }
+    return;
+}
+
+
+
+=head2 times_cleaned
+
+Returns the value of timesCleaned
+
+=cut
+
+sub times_cleaned {
+    my $self = shift;
+    if (@_) {}
+    if (my $el = $self->elem->getChildrenByTagName('gCal:timesCleaned')->[0]) {
+        return $el->getAttribute('value');
+    }
+    return;
+}
+
 1;
