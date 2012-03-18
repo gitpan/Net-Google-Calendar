@@ -17,10 +17,12 @@ use URI;
 use URI::Escape;
 use Carp qw(confess);
 
-use vars qw($VERSION $APP_NAME);
+use vars qw($VERSION $APP_NAME $REDIRECT_MAX);
 
-$VERSION  = "1.0";
+$VERSION  = "1.01";
 $APP_NAME = $Net::Google::OAuth::APP_NAME = __PACKAGE__."-${VERSION}"; 
+
+$REDIRECT_MAX = 10; #Maximum number of redirects to allow
 
 =head1 NAME
 
@@ -610,10 +612,14 @@ sub get_feed {
             my %params = ($self->{_auth}->auth_params('GET', $feed), %opts);
             my $r   = $self->{_ua}->get("$feed", %params);
 
-            if ($r->code == 302) {
+            my $redirect_tries = 0;
+            while ($r->code == 302 || $r->code == 301) {
                 my $location = $r->header('location');
                 %params = ($self->{_auth}->auth_params('GET', $location), %opts);
                 $r   = $self->{_ua}->get($location, %params);
+                $redirect_tries++;
+            	die "Too many redirects ($redirect_tries)" 
+            	  if $redirect_tries > $REDIRECT_MAX;
             }
 
             die $r->status_line unless $r->is_success;
@@ -760,19 +766,23 @@ sub _do {
 
     
 
-    while (1) {
+    REQUEST: while (1) {
         my $rq = POST "$url", %params;
         $self->{_cookie_jar}->add_cookie_header($rq);
         #my $h  = HTTP::Headers->new(%params);
         #my $rq = HTTP::Request->new($method => $url, $h);
         my $r = $self->{_ua}->request( $rq );
         $self->{_cookie_jar}->extract_cookies($r);
-        if (302 == $r->code) {
+        my $redirect_tries = 0;
+        while (302 == $r->code || 301 == $r->code) {
             $url = $r->header('location');
             my %args = URI->new($url)->query_form;
             $self->{_session_id} = $args{gsessionid};
-            next;
-        } 
+            $redirect_tries++;
+			die "Too many redirects ($redirect_tries)" 
+			  if $redirect_tries > $REDIRECT_MAX;
+            next REQUEST;
+        }
         #print $rq->as_string unless $params{'X-HTTP-Method-Override'} ;
 
         if (!$r->is_success) {

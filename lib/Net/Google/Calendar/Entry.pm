@@ -491,7 +491,7 @@ For example ...
 
 To get the recurrence back:
 
-    print $entry->recurrence->a_string;
+    print $entry->recurrence->as_string;
 
 See 
 
