@@ -1,6 +1,6 @@
 package Net::Google::Calendar::Person;
 {
-  $Net::Google::Calendar::Person::VERSION = '1.03';
+  $Net::Google::Calendar::Person::VERSION = '1.04';
 }
 
 use strict;

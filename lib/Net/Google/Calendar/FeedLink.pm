@@ -1,6 +1,6 @@
 package Net::Google::Calendar::FeedLink;
 {
-  $Net::Google::Calendar::FeedLink::VERSION = '1.03';
+  $Net::Google::Calendar::FeedLink::VERSION = '1.04';
 }
 
 use strict;
