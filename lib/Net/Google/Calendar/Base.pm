@@ -1,4 +1,7 @@
 package Net::Google::Calendar::Base;
+{
+  $Net::Google::Calendar::Base::VERSION = '1.02';
+}
 
 use strict;
 use XML::Atom::Thing;

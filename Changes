@@ -1,3 +1,6 @@
+v1.02
+  Added method to get originalEvent from XML - suggested by Ian Norton
+
 v1.01
   Fixed POD typo (Pete Lytle) (https://rt.cpan.org/Ticket/Display.html?id=61798)
   Added "302 moved temporarily" patch (Pete Lytle) (https://rt.cpan.org/Ticket/Display.html?id=69824)

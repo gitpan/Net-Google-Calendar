@@ -24,6 +24,8 @@ $APP_NAME = $Net::Google::OAuth::APP_NAME = __PACKAGE__."-${VERSION}";
 
 $REDIRECT_MAX = 10; #Maximum number of redirects to allow
 
+# ABSTRACT: Interface to Google calendars
+
 =head1 NAME
 
 Net::Google::Calendar - programmatic access to Google's Calendar API

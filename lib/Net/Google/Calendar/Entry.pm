@@ -1,4 +1,7 @@
 package Net::Google::Calendar::Entry;
+{
+  $Net::Google::Calendar::Entry::VERSION = '1.02';
+}
 
 use strict;
 use Data::Dumper;
@@ -559,6 +562,17 @@ sub add_link {
     # workaround bug in XML::Atom
     $link = bless $link, 'XML::Atom::Link' if ref($link) && $link->isa('XML::Atom::Link');
     $self->SUPER::add_link($link);
+}
+
+=head2 original_event [event]
+
+Get or set the original event ID.
+
+=cut
+
+sub original_event {
+    my $self = shift;
+    return $self->_gd_element('originalEvent', @_);
 }
 
 =head1 TODO

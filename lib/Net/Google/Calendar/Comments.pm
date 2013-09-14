@@ -1,4 +1,7 @@
 package Net::Google::Calendar::Comments;
+{
+  $Net::Google::Calendar::Comments::VERSION = '1.02';
+}
 
 use strict;
 use Net::Google::Calendar::FeedLink;

@@ -1,4 +1,7 @@
 package Net::Google::Calendar::Person;
+{
+  $Net::Google::Calendar::Person::VERSION = '1.02';
+}
 
 use strict;
 use XML::Atom::Person;

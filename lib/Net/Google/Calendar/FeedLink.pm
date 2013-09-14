@@ -1,4 +1,7 @@
 package Net::Google::Calendar::FeedLink;
+{
+  $Net::Google::Calendar::FeedLink::VERSION = '1.02';
+}
 
 use strict;
 use XML::Atom::Feed;
