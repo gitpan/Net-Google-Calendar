@@ -1,6 +1,6 @@
 package Net::Google::Calendar::Calendar;
 {
-  $Net::Google::Calendar::Calendar::VERSION = '1.02';
+  $Net::Google::Calendar::Calendar::VERSION = '1.03';
 }
 
 use base qw(Net::Google::Calendar::Entry);

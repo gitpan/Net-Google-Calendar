@@ -1,4 +1,7 @@
 package Net::Google::Calendar;
+{
+  $Net::Google::Calendar::VERSION = '1.03';
+}
 
 use strict;
 use LWP::UserAgent;
@@ -19,7 +22,6 @@ use Carp qw(confess);
 
 use vars qw($VERSION $APP_NAME $REDIRECT_MAX);
 
-$VERSION  = "1.01";
 $APP_NAME = $Net::Google::OAuth::APP_NAME = __PACKAGE__."-${VERSION}"; 
 
 $REDIRECT_MAX = 10; #Maximum number of redirects to allow
