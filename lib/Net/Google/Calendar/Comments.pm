@@ -1,6 +1,6 @@
 package Net::Google::Calendar::Comments;
 {
-  $Net::Google::Calendar::Comments::VERSION = '1.04';
+  $Net::Google::Calendar::Comments::VERSION = '1.05';
 }
 
 use strict;
